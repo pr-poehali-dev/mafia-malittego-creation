@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import GameTimer from '@/components/GameTimer';
 import GameChat from '@/components/GameChat';
+import { generateRolesForGame, getRoleInfo } from '@/config/roles';
 
 interface Player {
   id: number;
@@ -23,7 +24,6 @@ const Index = () => {
   const [currentPhase, setCurrentPhase] = useState<'day' | 'night'>('day');
   const [round, setRound] = useState(1);
 
-  const roles = ['Мафия', 'Мафия', 'Дон', 'Шериф', 'Мирный житель', 'Мирный житель', 'Мирный житель', 'Доктор'];
   const phaseDuration = currentPhase === 'day' ? 60 : 45;
 
   const addPlayer = () => {
@@ -38,6 +38,7 @@ const Index = () => {
   };
 
   const startGame = () => {
+    const roles = generateRolesForGame(players.length);
     const shuffledRoles = [...roles].sort(() => Math.random() - 0.5);
     const updatedPlayers = players.map((player, index) => ({
       ...player,
@@ -381,18 +382,23 @@ const Index = () => {
             </div>
 
             <div className="grid gap-4">
-              {players.map((player) => (
-                <div key={player.id} className="glass p-6 rounded-2xl animate-scale-in">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-xl">
-                        {player.name[0]}
+              {players.map((player) => {
+                const roleInfo = getRoleInfo(player.role || '');
+                return (
+                  <div key={player.id} className="glass p-6 rounded-2xl animate-scale-in">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${roleInfo?.color || 'from-primary to-secondary'} flex items-center justify-center text-2xl shadow-lg`}>
+                          {roleInfo?.icon || player.name[0]}
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-lg">{player.name}</h3>
+                          <p className="text-sm text-muted-foreground">{player.role}</p>
+                          {roleInfo && (
+                            <p className="text-xs text-muted-foreground/70 mt-1">{roleInfo.ability}</p>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-bold text-lg">{player.name}</h3>
-                        <p className="text-sm text-muted-foreground">{player.role}</p>
-                      </div>
-                    </div>
                     <div className="flex items-center gap-3">
                       <span className={`px-4 py-2 rounded-full text-sm font-medium ${
                         player.status === 'alive' 
@@ -413,7 +419,8 @@ const Index = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="glass p-6 rounded-2xl">
