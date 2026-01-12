@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
+import GameTimer from '@/components/GameTimer';
 
 interface Player {
   id: number;
@@ -18,8 +19,11 @@ const Index = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [newPlayerName, setNewPlayerName] = useState('');
   const [lobbyLink] = useState(`https://malittego.com/lobby/${Math.random().toString(36).substring(7)}`);
+  const [currentPhase, setCurrentPhase] = useState<'day' | 'night'>('day');
+  const [round, setRound] = useState(1);
 
   const roles = ['Мафия', 'Мафия', 'Дон', 'Шериф', 'Мирный житель', 'Мирный житель', 'Мирный житель', 'Доктор'];
+  const phaseDuration = currentPhase === 'day' ? 60 : 45;
 
   const addPlayer = () => {
     if (newPlayerName.trim()) {
@@ -47,6 +51,13 @@ const Index = () => {
     setPlayers(players.map(p => 
       p.id === id ? { ...p, status: p.status === 'alive' ? 'eliminated' : 'alive' } as Player : p
     ));
+  };
+
+  const handlePhaseEnd = () => {
+    if (currentPhase === 'night') {
+      setRound(round + 1);
+    }
+    setCurrentPhase(currentPhase === 'day' ? 'night' : 'day');
   };
 
   if (!showLobby) {
@@ -351,8 +362,14 @@ const Index = () => {
           <div className="space-y-8">
             <div className="text-center">
               <h2 className="text-3xl font-bold mb-4">Игра началась!</h2>
-              <p className="text-muted-foreground">Роли распределены между игроками</p>
+              <p className="text-muted-foreground">Раунд {round} · Роли распределены между игроками</p>
             </div>
+
+            <GameTimer 
+              phase={currentPhase}
+              duration={phaseDuration}
+              onPhaseEnd={handlePhaseEnd}
+            />
 
             <div className="grid gap-4">
               {players.map((player) => (
