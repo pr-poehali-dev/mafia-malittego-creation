@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import GameTimer from '@/components/GameTimer';
+import GameChat from '@/components/GameChat';
 
 interface Player {
   id: number;
@@ -365,11 +366,19 @@ const Index = () => {
               <p className="text-muted-foreground">Раунд {round} · Роли распределены между игроками</p>
             </div>
 
-            <GameTimer 
-              phase={currentPhase}
-              duration={phaseDuration}
-              onPhaseEnd={handlePhaseEnd}
-            />
+            <div className="grid md:grid-cols-2 gap-6">
+              <GameTimer 
+                phase={currentPhase}
+                duration={phaseDuration}
+                onPhaseEnd={handlePhaseEnd}
+              />
+              
+              <GameChat 
+                isNight={currentPhase === 'night'}
+                currentPlayerId={1}
+                currentPlayerName={players[0]?.name || 'Игрок'}
+              />
+            </div>
 
             <div className="grid gap-4">
               {players.map((player) => (
